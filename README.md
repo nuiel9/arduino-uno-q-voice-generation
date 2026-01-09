@@ -1,22 +1,23 @@
 # Arduino UNO Q - Offline Voice Generation System
 
-A complete offline text-to-speech (TTS) system for Arduino UNO Q that runs entirely on-device without requiring internet connectivity. Built using pure Python with no external dependencies.
+A complete offline text-to-speech (TTS) system for Arduino UNO Q that runs entirely on-device without requiring internet connectivity. Features three quality levels: professional espeak-ng integration, enhanced pure Python TTS, and basic zero-dependency TTS.
 
 ## Features
 
 ✨ **Fully Offline** - No internet connection required  
-🎵 **Voice Customization** - Control pitch, speed, and volume  
+🎵 **Voice Customization** - Control pitch, speed, volume, and voice presets  
 🔊 **Real-time Generation** - Synthesize speech on-the-fly  
 🤖 **Arduino Integration** - Serial communication with STM32 MCU  
 🎮 **Interactive Demos** - Multiple demonstration modes  
-📦 **Zero Dependencies** - Pure Python implementation
+📦 **Multiple Quality Levels** - Professional (espeak-ng), enhanced (pure Python), or basic (zero dependencies)  
+⚖️ **Engine Comparison** - Built-in comparison tool for all three engines
 
 ## System Requirements
 
 - Arduino UNO Q (tested on 2GB RAM variant)
 - Python 3.13+ (included with UNO Q)
 - Audio output device (USB or built-in)
-- ~100MB free storage space
+- ~350MB free storage space (for espeak-ng) or ~50KB (pure Python only)
 
 ## Project Structure
 
@@ -25,6 +26,7 @@ voice_ai_project/
 ├── simple_tts.py              # Basic TTS engine (pure Python)
 ├── advanced_tts.py            # Advanced TTS with customization (pure Python)
 ├── espeak_tts.py              # Professional TTS using espeak-ng ⭐ RECOMMENDED
+├── compare_tts.py             # Compare all three TTS engines
 ├── serial_voice_bridge.py     # Arduino MCU communication bridge
 ├── arduino_voice_trigger.ino  # Arduino sketch for STM32
 ├── demo.py                    # Interactive demo application
@@ -54,7 +56,21 @@ python3 simple_tts.py "Hello from Arduino UNO Q"
 python3 advanced_tts.py "Test" --pitch 1.2 --speed 1.0 --volume 0.7
 ```
 
-### 2. Interactive Demo
+### 2. Compare TTS Engines
+
+Compare all three TTS engines side-by-side:
+
+```bash
+python3 compare_tts.py
+```
+
+This tool demonstrates:
+- Quality comparison of all three engines
+- Speed and performance differences
+- Feature availability
+- Usage recommendations
+
+### 3. Interactive Demo
 
 Run the interactive demo to explore all features:
 
@@ -69,7 +85,7 @@ This provides:
 - Interactive text input mode
 - Special voice effects (robot, deep, chipmunk)
 
-### 3. Arduino Integration
+### 4. Arduino Integration
 
 For projects combining the STM32 MCU with voice generation:
 
@@ -91,6 +107,26 @@ The bridge will:
 - Send status feedback to MCU
 
 ## API Usage
+
+### Espeak TTS (Recommended)
+
+```python
+from espeak_tts import EspeakTTS
+
+# Create TTS with default settings
+tts = EspeakTTS()
+tts.speak("Hello world")
+
+# With custom settings
+tts = EspeakTTS(speed=180, pitch=50, volume=100)
+tts.speak("Custom voice")
+
+# Using voice presets
+tts = EspeakTTS(preset="robot")
+tts.speak("I am a robot")
+
+# Available presets: normal, fast, slow, robot, deep, high, whisper, excited, calm
+```
 
 ### Simple TTS
 
@@ -162,6 +198,20 @@ tts.speak("High pitched voice")
 
 ## Command Line Options
 
+### espeak_tts.py
+
+```bash
+python3 espeak_tts.py [text] [options]
+
+Options:
+  --speed INT        Speech speed (80-450, default: 175)
+  --pitch INT        Voice pitch (0-99, default: 50)
+  --volume INT       Volume level (0-200, default: 100)
+  --preset NAME      Voice preset (normal/fast/slow/robot/deep/high/whisper/excited/calm)
+  --output FILE      Output WAV file path
+  --no-play          Don't play audio, just save file
+```
+
 ### advanced_tts.py
 
 ```bash
@@ -223,24 +273,27 @@ The TTS engine uses **formant synthesis**, a technique that generates speech by:
 
 - **Memory**: ~10-20MB RAM during synthesis
 - **CPU**: Moderate (synthesizes in near real-time)
-- **Storage**: ~50KB for all scripts
+- **Storage**: ~72KB for all scripts + 314MB for espeak-ng (optional)
 - **Audio**: 22.05 kHz, 16-bit mono WAV files
 
 ### Limitations
 
-This is a basic TTS system suitable for:
-- ✅ Short phrases and sentences
-- ✅ Robotic/synthetic voice applications
-- ✅ Embedded systems with limited resources
-- ✅ Offline operation
+**espeak-ng TTS (Professional):**
+- ✅ Natural pronunciation
+- ✅ Multiple languages supported
+- ✅ Professional quality
+- ✅ Voice presets and customization
+- ⚠️ Requires 314MB storage
 
-Not suitable for:
-- ❌ Natural human-like speech
-- ❌ Complex pronunciation
-- ❌ Multiple languages (English only)
-- ❌ Professional voice applications
+**Pure Python TTS (Advanced/Simple):**
+- ✅ Zero dependencies
+- ✅ Minimal storage (~10KB)
+- ✅ Good for embedded systems
+- ⚠️ Robotic/synthetic voice
+- ⚠️ Limited pronunciation accuracy
+- ⚠️ English only
 
-For better quality, consider installing espeak-ng or Piper TTS if you have sudo access.
+Choose espeak-ng for professional applications, or pure Python for ultra-lightweight deployments.
 
 ## Troubleshooting
 
@@ -278,10 +331,10 @@ python3 demo.py
 ### Example 1: Simple Announcement System
 
 ```python
-from advanced_tts import AdvancedTTS
+from espeak_tts import EspeakTTS
 import time
 
-tts = AdvancedTTS(volume=0.8, speed=1.1)
+tts = EspeakTTS(volume=120, speed=180)
 
 announcements = [
     "System startup complete.",
@@ -297,10 +350,10 @@ for msg in announcements:
 ### Example 2: Sensor Reading Announcer
 
 ```python
-from advanced_tts import AdvancedTTS
+from espeak_tts import EspeakTTS
 import random
 
-tts = AdvancedTTS(volume=0.6)
+tts = EspeakTTS(volume=100)
 
 # Simulate sensor reading
 temperature = random.randint(20, 30)
@@ -313,15 +366,15 @@ tts.speak(f"Humidity is {humidity} percent.")
 ### Example 3: Status Alert System
 
 ```python
-from advanced_tts import AdvancedTTS
+from espeak_tts import EspeakTTS
 
 def alert_status(level, message):
     if level == "error":
-        tts = AdvancedTTS(pitch=0.7, speed=0.9, volume=0.8)
+        tts = EspeakTTS(preset="deep", speed=160)
     elif level == "warning":
-        tts = AdvancedTTS(pitch=1.0, speed=1.0, volume=0.7)
+        tts = EspeakTTS(preset="normal", volume=120)
     else:
-        tts = AdvancedTTS(pitch=1.2, speed=1.2, volume=0.6)
+        tts = EspeakTTS(preset="excited", speed=200)
     
     tts.speak(message)
 
@@ -349,8 +402,8 @@ This project is open source and available for use with Arduino UNO Q.
 ## Credits
 
 Developed for Arduino UNO Q  
-Uses formant synthesis techniques  
-Pure Python implementation - no external dependencies
+Uses formant synthesis techniques (pure Python) and espeak-ng integration  
+Multiple quality levels: professional, enhanced, and zero-dependency options
 
 ## Support
 
