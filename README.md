@@ -1,0 +1,365 @@
+# Arduino UNO Q - Offline Voice Generation System
+
+A complete offline text-to-speech (TTS) system for Arduino UNO Q that runs entirely on-device without requiring internet connectivity. Built using pure Python with no external dependencies.
+
+## Features
+
+✨ **Fully Offline** - No internet connection required  
+🎵 **Voice Customization** - Control pitch, speed, and volume  
+🔊 **Real-time Generation** - Synthesize speech on-the-fly  
+🤖 **Arduino Integration** - Serial communication with STM32 MCU  
+🎮 **Interactive Demos** - Multiple demonstration modes  
+📦 **Zero Dependencies** - Pure Python implementation
+
+## System Requirements
+
+- Arduino UNO Q (tested on 2GB RAM variant)
+- Python 3.13+ (included with UNO Q)
+- Audio output device (USB or built-in)
+- ~100MB free storage space
+
+## Project Structure
+
+```
+voice_ai_project/
+├── simple_tts.py              # Basic TTS engine (pure Python)
+├── advanced_tts.py            # Advanced TTS with customization (pure Python)
+├── espeak_tts.py              # Professional TTS using espeak-ng ⭐ RECOMMENDED
+├── serial_voice_bridge.py     # Arduino MCU communication bridge
+├── arduino_voice_trigger.ino  # Arduino sketch for STM32
+├── demo.py                    # Interactive demo application
+├── README.md                  # This file
+└── QUICK_START.md             # Quick reference guide
+```
+
+## Quick Start
+
+### 1. Basic Usage
+
+Generate speech from command line:
+
+```bash
+# Professional quality with espeak-ng (RECOMMENDED)
+python3 espeak_tts.py "Hello from Arduino UNO Q"
+
+# With voice presets
+python3 espeak_tts.py "Test message" --preset robot
+python3 espeak_tts.py "Excited voice" --preset excited
+
+# Custom settings
+python3 espeak_tts.py "Custom" --speed 200 --pitch 60 --volume 120
+
+# Pure Python TTS (no dependencies)
+python3 simple_tts.py "Hello from Arduino UNO Q"
+python3 advanced_tts.py "Test" --pitch 1.2 --speed 1.0 --volume 0.7
+```
+
+### 2. Interactive Demo
+
+Run the interactive demo to explore all features:
+
+```bash
+python3 demo.py
+```
+
+This provides:
+- Basic text-to-speech examples
+- Voice customization demonstrations
+- Long text synthesis
+- Interactive text input mode
+- Special voice effects (robot, deep, chipmunk)
+
+### 3. Arduino Integration
+
+For projects combining the STM32 MCU with voice generation:
+
+**Step 1:** Upload the Arduino sketch to your UNO Q MCU:
+- Open `arduino_voice_trigger.ino` in Arduino IDE or App Lab
+- Upload to the STM32U585 MCU side
+- Connect a button to pin 2 (optional)
+
+**Step 2:** Run the Python bridge on the Linux side:
+
+```bash
+python3 serial_voice_bridge.py
+```
+
+The bridge will:
+- Auto-detect the Arduino serial port
+- Listen for SPEAK: commands from the MCU
+- Generate and play speech
+- Send status feedback to MCU
+
+## API Usage
+
+### Simple TTS
+
+```python
+from simple_tts import SimpleTTS
+
+tts = SimpleTTS()
+tts.speak("Hello world")
+```
+
+### Advanced TTS
+
+```python
+from advanced_tts import AdvancedTTS
+
+# Create TTS with custom settings
+tts = AdvancedTTS(
+    pitch=1.2,    # 0.5 to 2.0 (default: 1.0)
+    speed=1.0,    # 0.5 to 2.0 (default: 1.0)
+    volume=0.6    # 0.0 to 1.0 (default: 0.5)
+)
+
+# Synthesize and play
+tts.speak("This is custom voice")
+
+# Save without playing
+tts.speak("Save this", play=False, output_file="/tmp/output.wav")
+```
+
+### Serial Bridge
+
+```python
+from serial_voice_bridge import SerialVoiceBridge
+
+# Auto-detect port
+bridge = SerialVoiceBridge()
+bridge.run()
+
+# Or specify port manually
+bridge = SerialVoiceBridge(port="/dev/ttyACM0", baudrate=115200)
+bridge.run()
+```
+
+## Voice Customization Examples
+
+### Robot Voice
+```python
+tts = AdvancedTTS(pitch=1.3, speed=0.8, volume=0.4)
+tts.speak("I am a robot")
+```
+
+### Deep Voice
+```python
+tts = AdvancedTTS(pitch=0.6, speed=0.9, volume=0.6)
+tts.speak("Deep voice mode")
+```
+
+### Fast Narrator
+```python
+tts = AdvancedTTS(pitch=1.0, speed=1.5, volume=0.7)
+tts.speak("Speaking very quickly now")
+```
+
+### Chipmunk Voice
+```python
+tts = AdvancedTTS(pitch=1.8, speed=1.4, volume=0.5)
+tts.speak("High pitched voice")
+```
+
+## Command Line Options
+
+### advanced_tts.py
+
+```bash
+python3 advanced_tts.py [text] [options]
+
+Options:
+  --pitch FLOAT      Voice pitch (0.5-2.0, default: 1.0)
+  --speed FLOAT      Speech speed (0.5-2.0, default: 1.0)
+  --volume FLOAT     Volume level (0.0-1.0, default: 0.5)
+  --output FILE      Output WAV file path
+  --no-play          Don't play audio, just save file
+```
+
+### serial_voice_bridge.py
+
+```bash
+python3 serial_voice_bridge.py [options]
+
+Options:
+  --port PORT        Serial port (auto-detect if not specified)
+  --baudrate RATE    Serial baud rate (default: 115200)
+```
+
+## Arduino Serial Protocol
+
+The bridge listens for simple text commands from the MCU:
+
+```
+SPEAK:<text to synthesize>
+```
+
+And sends status responses:
+
+```
+STATUS:OK
+STATUS:ERROR
+```
+
+Example Arduino code:
+
+```cpp
+Serial.println("SPEAK:Hello from microcontroller");
+```
+
+## Technical Details
+
+### Audio Synthesis
+
+The TTS engine uses **formant synthesis**, a technique that generates speech by:
+
+1. **Text to Phonemes** - Converting text to basic phoneme units
+2. **Formant Frequencies** - Each phoneme has characteristic frequency ranges
+3. **Sine Wave Generation** - Creating audio using mathematical waveforms
+4. **Envelope Shaping** - Smoothing transitions to reduce clicks
+5. **Harmonics** - Adding overtones for richer sound
+6. **WAV Encoding** - Outputting 16-bit PCM audio at 22.05 kHz
+
+### Resource Usage
+
+- **Memory**: ~10-20MB RAM during synthesis
+- **CPU**: Moderate (synthesizes in near real-time)
+- **Storage**: ~50KB for all scripts
+- **Audio**: 22.05 kHz, 16-bit mono WAV files
+
+### Limitations
+
+This is a basic TTS system suitable for:
+- ✅ Short phrases and sentences
+- ✅ Robotic/synthetic voice applications
+- ✅ Embedded systems with limited resources
+- ✅ Offline operation
+
+Not suitable for:
+- ❌ Natural human-like speech
+- ❌ Complex pronunciation
+- ❌ Multiple languages (English only)
+- ❌ Professional voice applications
+
+For better quality, consider installing espeak-ng or Piper TTS if you have sudo access.
+
+## Troubleshooting
+
+### No Audio Output
+
+```bash
+# Check audio devices
+aplay -l
+
+# Test audio with a simple tone
+speaker-test -t sine -f 440 -l 1
+```
+
+### Serial Port Issues
+
+```bash
+# List available ports
+python3 -c "import serial.tools.list_ports; print([p.device for p in serial.tools.list_ports.comports()])"
+
+# Check permissions
+ls -l /dev/ttyACM*
+```
+
+### Python Import Errors
+
+Make sure you're running scripts from the project directory:
+
+```bash
+cd /home/arduino/voice_ai_project
+python3 demo.py
+```
+
+## Examples
+
+### Example 1: Simple Announcement System
+
+```python
+from advanced_tts import AdvancedTTS
+import time
+
+tts = AdvancedTTS(volume=0.8, speed=1.1)
+
+announcements = [
+    "System startup complete.",
+    "All sensors operational.",
+    "Ready for operation."
+]
+
+for msg in announcements:
+    tts.speak(msg)
+    time.sleep(1)
+```
+
+### Example 2: Sensor Reading Announcer
+
+```python
+from advanced_tts import AdvancedTTS
+import random
+
+tts = AdvancedTTS(volume=0.6)
+
+# Simulate sensor reading
+temperature = random.randint(20, 30)
+humidity = random.randint(40, 60)
+
+tts.speak(f"Temperature is {temperature} degrees.")
+tts.speak(f"Humidity is {humidity} percent.")
+```
+
+### Example 3: Status Alert System
+
+```python
+from advanced_tts import AdvancedTTS
+
+def alert_status(level, message):
+    if level == "error":
+        tts = AdvancedTTS(pitch=0.7, speed=0.9, volume=0.8)
+    elif level == "warning":
+        tts = AdvancedTTS(pitch=1.0, speed=1.0, volume=0.7)
+    else:
+        tts = AdvancedTTS(pitch=1.2, speed=1.2, volume=0.6)
+    
+    tts.speak(message)
+
+alert_status("error", "Critical error detected")
+alert_status("warning", "Low battery warning")
+alert_status("info", "Operation complete")
+```
+
+## Future Enhancements
+
+Possible improvements if resources allow:
+
+- [ ] Better phoneme-to-text mapping
+- [ ] Multi-language support
+- [ ] SSML markup support
+- [ ] Integration with Piper TTS for neural voices
+- [ ] Web interface for remote control
+- [ ] Voice recording and playback
+- [ ] Emotion/intonation control
+
+## License
+
+This project is open source and available for use with Arduino UNO Q.
+
+## Credits
+
+Developed for Arduino UNO Q  
+Uses formant synthesis techniques  
+Pure Python implementation - no external dependencies
+
+## Support
+
+For issues or questions:
+1. Check the troubleshooting section
+2. Review the examples
+3. Run the demo.py to verify installation
+4. Check Arduino forums for UNO Q specific issues
+
+---
+
+**Enjoy offline voice generation on your Arduino UNO Q!** 🎙️🤖
