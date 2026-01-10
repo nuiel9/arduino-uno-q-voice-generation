@@ -7,6 +7,7 @@ Interactive demonstration of offline voice generation capabilities
 
 import os
 import time
+import subprocess
 from espeak_tts import EspeakTTS, VoicePresets
 
 # Optional Piper integration
@@ -19,6 +20,8 @@ except Exception:
 
 # Current TTS engine: 'espeak' or 'piper'
 ENGINE = 'espeak'
+# Current ESPEAK voice (supports MBROLA voices like 'mb-us1')
+ESPEAK_VOICE = 'en'
 
 def clear_screen():
     os.system('clear' if os.name != 'nt' else 'cls')
@@ -43,7 +46,7 @@ def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None):
     es_speed = max(80, min(450, int(175 * speed)))
     es_pitch = max(0, min(99, int(50 * pitch)))
     es_volume = max(0, min(200, int(200 * volume)))
-    return EspeakTTS(speed=es_speed, pitch=es_pitch, volume=es_volume)
+    return EspeakTTS(voice=ESPEAK_VOICE, speed=es_speed, pitch=es_pitch, volume=es_volume)
 
 def _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5, preset=None):
     global ENGINE
@@ -171,7 +174,10 @@ def show_menu():
     print("=" * 60)
     print("   Arduino UNO Q - Offline Voice Generation Demo")
     print("=" * 60)
-    print(f"Engine: {ENGINE.upper()}  (toggle with option 7)")
+    if ENGINE == 'espeak':
+        print(f"Engine: ESPEAK (voice={ESPEAK_VOICE})  | Toggle engine: option 7")
+    else:
+        print("Engine: PIPER  | Toggle engine: option 7")
     print("\nAvailable Demos:\n")
     print("  1. Basic Text-to-Speech")
     print("  2. Voice Customization")
@@ -180,12 +186,35 @@ def show_menu():
     print("  5. Special Voice Effects")
     print("  6. Run All Demos")
     print("  7. Switch Engine (espeak/piper)")
+    print("  8. Select ESPEAK Voice (en/mb-us1/mb-us2/mb-us3)")
     print("  0. Exit")
     print("\n" + "=" * 60)
 
+def list_mbrola_voices():
+    try:
+        out = subprocess.check_output(['espeak-ng', '--voices=mb'], text=True)
+        print(out)
+    except Exception:
+        print("Could not list MBROLA voices. Make sure mbrola voices are installed.")
+
+
+def select_espeak_voice():
+    global ESPEAK_VOICE
+    print("\nSelect ESPEAK voice (examples: en, mb-us1, mb-us2, mb-us3).\n")
+    try:
+        list_mbrola_voices()
+    except Exception:
+        pass
+    choice = input("Enter voice code (or press Enter to keep current): ").strip()
+    if choice:
+        ESPEAK_VOICE = choice
+        print(f"Selected ESPEAK voice: {ESPEAK_VOICE}")
+        time.sleep(1)
+
+
 def main():
     """Main demo program"""
-    global ENGINE
+    global ENGINE, ESPEAK_VOICE
     demos = {
         '1': demo_basic_tts,
         '2': demo_voice_customization,
@@ -196,7 +225,7 @@ def main():
     
     while True:
         show_menu()
-        choice = input("\nSelect demo (0-7): ").strip()
+        choice = input("\nSelect demo (0-8): ").strip()
         
         if choice == '0':
             print("\nGoodbye!")
@@ -217,6 +246,12 @@ def main():
                     ENGINE = 'piper'
             else:
                 ENGINE = 'espeak'
+        elif choice == '8':
+            if ENGINE != 'espeak':
+                print("Switch to ESPEAK (option 7) to change ESPEAK voice.")
+                time.sleep(1)
+            else:
+                select_espeak_voice()
         elif choice in demos:
             demos[choice]()
             input("\nPress Enter to continue...")
