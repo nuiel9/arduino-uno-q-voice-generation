@@ -9,6 +9,7 @@ import os
 import time
 import subprocess
 from espeak_tts import EspeakTTS, VoicePresets
+from gtts import gTTS
 
 # Optional Piper integration
 PIPER_AVAILABLE = False
@@ -28,7 +29,7 @@ SPEECH_SPEED = 1.0
 def clear_screen():
     os.system('clear' if os.name != 'nt' else 'cls')
 
-def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None):
+def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None, voice_override=None):
     if preset:
         # Map preset names to VoicePresets
         presets = {
@@ -48,14 +49,15 @@ def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None):
     es_speed = max(80, min(450, int(175 * speed)))
     es_pitch = max(0, min(99, int(50 * pitch)))
     es_volume = max(0, min(200, int(200 * volume)))
-    return EspeakTTS(voice=ESPEAK_VOICE, speed=es_speed, pitch=es_pitch, volume=es_volume)
+    voice = voice_override if voice_override else ESPEAK_VOICE
+    return EspeakTTS(voice=voice, speed=es_speed, pitch=es_pitch, volume=es_volume)
 
-def _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5, preset=None):
+def _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5, preset=None, voice_override=None):
     global ENGINE, SPEECH_SPEED
     # Combine requested speed with global multiplier and clamp
     effective_speed = max(0.5, min(2.0, (speed or 1.0) * (SPEECH_SPEED or 1.0)))
     if ENGINE == 'espeak':
-        tts = _espeak_from_params(pitch=pitch, speed=effective_speed, volume=volume, preset=preset)
+        tts = _espeak_from_params(pitch=pitch, speed=effective_speed, volume=volume, preset=preset, voice_override=voice_override)
         tts.speak(text)
     elif ENGINE == 'piper':
         if not PIPER_AVAILABLE:
@@ -192,6 +194,8 @@ def show_menu():
     print("  7. Switch Engine (espeak/piper)")
     print("  8. Select ESPEAK Voice (en/mb-us1/mb-us2/mb-us3)")
     print("  9. Set Global Speed (0.5–2.0, default 1.0)")
+    print(" 10. Thai Quick Test (สวัสดี)")
+    print(" 11. gTTS Thai Demo (Google TTS)")
     print("  0. Exit")
     print("\n" + "=" * 60)
 
@@ -232,6 +236,28 @@ def select_speed():
         time.sleep(1)
 
 
+def demo_gtts_thai():
+    """Demo gTTS Thai language support"""
+    print("\n=== gTTS Thai Language Demo ===\n")
+    
+    thai_text = "สวัสดีครับ นี่คือการทดสอบเสียงภาษาไทยด้วย Google Text to Speech"
+    output_file = "/tmp/gtts_thai.mp3"
+    
+    try:
+        print(f"Generating Thai speech: {thai_text}")
+        tts = gTTS(text=thai_text, lang='th')
+        tts.save(output_file)
+        print(f"Saved to {output_file}")
+        
+        # Play the audio file
+        print("Playing audio...")
+        subprocess.run(['mpg123', '-q', output_file])
+        print("Playback complete.")
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Note: Make sure mpg123 is installed for playback (sudo apt install mpg123)")
+
+
 def main():
     """Main demo program"""
     global ENGINE, ESPEAK_VOICE, SPEECH_SPEED
@@ -245,7 +271,7 @@ def main():
     
     while True:
         show_menu()
-        choice = input("\nSelect demo (0-9): ").strip()
+        choice = input("\nSelect demo (0-11): ").strip()
         
         if choice == '0':
             print("\nGoodbye!")
@@ -274,6 +300,16 @@ def main():
                 select_espeak_voice()
         elif choice == '9':
             select_speed()
+        elif choice == '10':
+            thai_text = "สวัสดีครับ นี่คือการทดสอบเสียงภาษาไทยแบบออฟไลน์"
+            if ENGINE == 'espeak':
+                _engine_speak(thai_text, voice_override='th')
+            else:
+                print("Piper Thai voice not installed yet. I can set it up if you want.")
+                time.sleep(2)
+        elif choice == '11':
+            demo_gtts_thai()
+            input("\nPress Enter to continue...")
         elif choice in demos:
             demos[choice]()
             input("\nPress Enter to continue...")

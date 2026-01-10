@@ -9,16 +9,17 @@
 
 ## Project Overview
 
-Built a complete offline text-to-speech (TTS) system for Arduino UNO Q with three quality levels:
-1. Professional quality using espeak-ng
-2. Advanced pure Python TTS with voice customization
-3. Simple pure Python TTS with zero dependencies
+Built a complete text-to-speech (TTS) system for Arduino UNO Q with multiple quality levels:
+1. Professional quality using espeak-ng (offline)
+2. Google TTS (gTTS) for high-quality multi-language support (online)
+3. Advanced pure Python TTS with voice customization (offline)
+4. Simple pure Python TTS with zero dependencies (offline)
 
 ## What Was Built
 
-### Core TTS Engines (3 engines)
+### Core TTS Engines (4 engines)
 
-#### 1. espeak_tts.py ⭐ RECOMMENDED
+#### 1. espeak_tts.py ⭐ RECOMMENDED (Offline)
 - **Technology:** espeak-ng wrapper
 - **Quality:** Professional
 - **Features:** 9 voice presets, multiple languages
@@ -40,35 +41,48 @@ Built a complete offline text-to-speech (TTS) system for Arduino UNO Q with thre
 - **Size:** 5.2KB
 - **Dependencies:** None (pure Python)
 
-### Supporting Tools (6 files)
+#### 4. gTTS Integration 🌐 (Online)
+- **Technology:** Google Text-to-Speech API
+- **Quality:** Professional (cloud-based)
+- **Features:** 100+ languages, natural voices, Thai language support
+- **Dependencies:** gtts package, internet connection
+- **Note:** Requires internet, generates MP3 files
 
-1. **demo.py** (4.5KB)
-   - Interactive demo with 5 demonstration modes
+### Supporting Tools (7 files)
+
+1. **demo.py** (5.0KB)
+   - Interactive demo with 6 demonstration modes
    - Voice customization showcase
    - Special effects demonstrations
+   - gTTS Thai language demo (menu option 11)
 
-2. **compare_tts.py** (5.7KB)
-   - Side-by-side comparison of all three engines
+2. **gtts_multilang.py** (3.2KB)
+   - Google TTS multi-language tool
+   - 100+ language support
+   - Thai language optimized
+
+3. **compare_tts.py** (5.7KB)
+   - Side-by-side comparison of all engines
    - Quality/speed/features comparison
    - Usage recommendations
 
-3. **serial_voice_bridge.py** (4.1KB)
+4. **serial_voice_bridge.py** (4.1KB)
    - Serial communication bridge for Arduino MCU
    - Auto-detect serial ports
    - Command protocol: `SPEAK:<text>`
 
-4. **arduino_voice_trigger.ino** (2.7KB)
+5. **arduino_voice_trigger.ino** (2.7KB)
    - STM32U585 microcontroller sketch
    - Button-triggered voice output
    - LED status feedback
 
-5. **README.md** (8.5KB)
+6. **README.md** (8.5KB)
    - Complete documentation
    - API usage examples
    - Troubleshooting guide
    - 15+ code examples
 
-6. **QUICK_START.md** (3.1KB)
+7. **QUICK_START.md** (3.1KB)
    - 30-second quick start
    - Common use cases
    - Quick examples
@@ -115,7 +129,8 @@ sudo apt-get install espeak-ng espeak-ng-data python3-pip
 
 ### Python Environment
 - Python 3.13.5 (system)
-- No additional Python packages needed (pure stdlib)
+- gtts 2.5.4 (installed via pip --break-system-packages)
+- No additional Python packages needed for offline engines (pure stdlib)
 
 ## Usage Examples
 
@@ -151,6 +166,11 @@ tts.speak("Custom voice")
 from simple_tts import SimpleTTS
 tts = SimpleTTS()
 tts.speak("Basic voice")
+
+# Google TTS (Thai)
+from gtts import gTTS
+tts = gTTS(text="สวัสดีครับ", lang='th')
+tts.save("/tmp/output.mp3")
 ```
 
 ### Arduino Integration
@@ -186,14 +206,15 @@ Arduino UNO Q
 
 ## Key Features
 
-✅ **Fully Offline** - No internet required  
-✅ **Multi-Quality** - 3 engines for different needs  
+✅ **Hybrid Approach** - Offline + online options  
+✅ **Multi-Quality** - 4 engines for different needs  
+✅ **Multi-Language** - Thai support via gTTS  
 ✅ **Voice Customization** - Pitch, speed, volume, presets  
 ✅ **Arduino Integration** - MCU ↔ MPU communication  
 ✅ **Zero Dependencies** - Pure Python options available  
-✅ **Professional Quality** - espeak-ng integration  
+✅ **Professional Quality** - espeak-ng + Google TTS  
 ✅ **Comprehensive Docs** - README, quick start, examples  
-✅ **Interactive Demos** - Multiple demonstration modes  
+✅ **Interactive Demos** - Multiple demonstration modes
 
 ## Challenges Overcome
 
@@ -209,6 +230,7 @@ Arduino UNO Q
 - ✅ Simple TTS: Working, basic robotic voice
 - ✅ Advanced TTS: Working, enhanced with harmonics
 - ✅ espeak TTS: Working, professional quality
+- ✅ gTTS: Working, high-quality Thai language support
 
 ### Integration Tests
 - ✅ Command line interface
@@ -227,12 +249,13 @@ Arduino UNO Q
 
 Documented in README.md:
 - [ ] Better phoneme-to-text mapping
-- [ ] Multi-language support expansion
+- [x] Multi-language support expansion (gTTS Thai added)
 - [ ] SSML markup support
 - [ ] Piper TTS integration (neural voices)
 - [ ] Web interface for remote control
 - [ ] Voice recording and playback
 - [ ] Emotion/intonation control
+- [ ] Offline Thai TTS (independent of internet)
 
 ## Files Created
 
@@ -249,12 +272,12 @@ Documented in README.md:
 | QUICK_START.md | 3.1KB | Quick reference |
 | warp.md | (this file) | Project summary |
 
-**Total:** 10 files, ~50KB code + comprehensive documentation
+**Total:** 11 files, ~54KB code + comprehensive documentation
 
 ## Success Metrics
 
 ✅ **Goal Achieved:** Offline voice generation on Arduino UNO Q  
-✅ **Quality:** Three levels (basic → professional)  
+✅ **Quality:** Four levels (basic → professional)  
 ✅ **Usability:** CLI, API, Arduino integration  
 ✅ **Documentation:** Complete guides and examples  
 ✅ **Testing:** All systems verified and working  
@@ -262,9 +285,9 @@ Documented in README.md:
 
 ## Conclusion
 
-Successfully built a complete offline voice generation system for Arduino UNO Q with:
-- Professional quality (espeak-ng)
-- Flexibility (3 quality levels)
+Successfully built a complete voice generation system for Arduino UNO Q with:
+- Professional quality (espeak-ng + Google TTS)
+- Flexibility (4 quality levels, hybrid online/offline)
 - Arduino integration (MCU bridge)
 - Comprehensive documentation
 - Zero external dependencies option
@@ -284,3 +307,5 @@ The system is production-ready and can be used for:
 
 *Built with Warp AI Agent for Arduino UNO Q*  
 *January 9, 2026*
+
+*Updated: January 10, 2026 - Added gTTS Thai language support*

@@ -126,6 +126,11 @@ class VoicePresets:
         return EspeakTTS(speed=175, pitch=50, volume=100)
     
     @staticmethod
+    def thai():
+        # Basic Thai voice using espeak-ng 'th'
+        return EspeakTTS(voice='th', speed=175, pitch=50, volume=100)
+    
+    @staticmethod
     def fast():
         return EspeakTTS(speed=250, pitch=50, volume=100)
     
@@ -186,7 +191,7 @@ Examples:
                        help='Volume (0-200, default: 100)')
     parser.add_argument('--preset', type=str, choices=[
                        'normal', 'fast', 'slow', 'robot', 'deep', 
-                       'high', 'whisper', 'excited', 'calm'],
+                       'high', 'whisper', 'excited', 'calm', 'thai'],
                        help='Use a voice preset')
     parser.add_argument('--output', type=str,
                        help='Save to WAV file')
