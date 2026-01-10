@@ -22,6 +22,8 @@ except Exception:
 ENGINE = 'espeak'
 # Current ESPEAK voice (supports MBROLA voices like 'mb-us1')
 ESPEAK_VOICE = 'en'
+# Global speed multiplier for all demos (0.5–2.0, 1.0 = normal)
+SPEECH_SPEED = 1.0
 
 def clear_screen():
     os.system('clear' if os.name != 'nt' else 'cls')
@@ -49,18 +51,20 @@ def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None):
     return EspeakTTS(voice=ESPEAK_VOICE, speed=es_speed, pitch=es_pitch, volume=es_volume)
 
 def _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5, preset=None):
-    global ENGINE
+    global ENGINE, SPEECH_SPEED
+    # Combine requested speed with global multiplier and clamp
+    effective_speed = max(0.5, min(2.0, (speed or 1.0) * (SPEECH_SPEED or 1.0)))
     if ENGINE == 'espeak':
-        tts = _espeak_from_params(pitch=pitch, speed=speed, volume=volume, preset=preset)
+        tts = _espeak_from_params(pitch=pitch, speed=effective_speed, volume=volume, preset=preset)
         tts.speak(text)
     elif ENGINE == 'piper':
         if not PIPER_AVAILABLE:
             print("Piper not available; falling back to espeak-ng.")
-            tts = _espeak_from_params(pitch=pitch, speed=speed, volume=volume, preset=preset)
+            tts = _espeak_from_params(pitch=pitch, speed=effective_speed, volume=volume, preset=preset)
             tts.speak(text)
             return
         # Map speed to Piper length-scale (<1 faster)
-        length_scale = max(0.6, min(1.6, 1.0 / max(0.5, min(2.0, speed))))
+        length_scale = max(0.6, min(1.6, 1.0 / effective_speed))
         # Basic presets mapping (very lightweight)
         noise_scale, noise_w = 0.667, 0.8
         if preset == 'robot':
@@ -175,9 +179,9 @@ def show_menu():
     print("   Arduino UNO Q - Offline Voice Generation Demo")
     print("=" * 60)
     if ENGINE == 'espeak':
-        print(f"Engine: ESPEAK (voice={ESPEAK_VOICE})  | Toggle engine: option 7")
+        print(f"Engine: ESPEAK (voice={ESPEAK_VOICE}, speed={SPEECH_SPEED:.2f}x)  | Toggle engine: option 7")
     else:
-        print("Engine: PIPER  | Toggle engine: option 7")
+        print(f"Engine: PIPER (speed={SPEECH_SPEED:.2f}x)  | Toggle engine: option 7")
     print("\nAvailable Demos:\n")
     print("  1. Basic Text-to-Speech")
     print("  2. Voice Customization")
@@ -187,6 +191,7 @@ def show_menu():
     print("  6. Run All Demos")
     print("  7. Switch Engine (espeak/piper)")
     print("  8. Select ESPEAK Voice (en/mb-us1/mb-us2/mb-us3)")
+    print("  9. Set Global Speed (0.5–2.0, default 1.0)")
     print("  0. Exit")
     print("\n" + "=" * 60)
 
@@ -212,9 +217,24 @@ def select_espeak_voice():
         time.sleep(1)
 
 
+def select_speed():
+    global SPEECH_SPEED
+    print("\nSet global speed multiplier (0.5–2.0). 1.0 = normal, <1.0 faster for Piper, >1.0 slower.")
+    val = input("Enter speed (e.g., 0.9, 1.0, 1.2): ").strip()
+    try:
+        sp = float(val)
+        sp = max(0.5, min(2.0, sp))
+        SPEECH_SPEED = sp
+        print(f"Global speed set to {SPEECH_SPEED:.2f}x")
+        time.sleep(1)
+    except ValueError:
+        print("Invalid number; keeping previous speed.")
+        time.sleep(1)
+
+
 def main():
     """Main demo program"""
-    global ENGINE, ESPEAK_VOICE
+    global ENGINE, ESPEAK_VOICE, SPEECH_SPEED
     demos = {
         '1': demo_basic_tts,
         '2': demo_voice_customization,
@@ -225,7 +245,7 @@ def main():
     
     while True:
         show_menu()
-        choice = input("\nSelect demo (0-8): ").strip()
+        choice = input("\nSelect demo (0-9): ").strip()
         
         if choice == '0':
             print("\nGoodbye!")
@@ -252,6 +272,8 @@ def main():
                 time.sleep(1)
             else:
                 select_espeak_voice()
+        elif choice == '9':
+            select_speed()
         elif choice in demos:
             demos[choice]()
             input("\nPress Enter to continue...")
