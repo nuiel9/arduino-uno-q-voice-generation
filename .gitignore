@@ -47,3 +47,7 @@ Thumbs.db
 
 # Project specific
 tts_output.wav
+
+# Piper binaries and models (downloaded at runtime)
+bin/
+voices/

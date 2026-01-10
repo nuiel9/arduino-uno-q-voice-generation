@@ -7,15 +7,73 @@ Interactive demonstration of offline voice generation capabilities
 
 import os
 import time
-from advanced_tts import AdvancedTTS
+from espeak_tts import EspeakTTS, VoicePresets
+
+# Optional Piper integration
+PIPER_AVAILABLE = False
+try:
+    from piper_tts import synthesize as piper_synthesize, play_wav as piper_play
+    PIPER_AVAILABLE = True
+except Exception:
+    PIPER_AVAILABLE = False
+
+# Current TTS engine: 'espeak' or 'piper'
+ENGINE = 'espeak'
 
 def clear_screen():
     os.system('clear' if os.name != 'nt' else 'cls')
 
+def _espeak_from_params(pitch=1.0, speed=1.0, volume=0.5, preset=None):
+    if preset:
+        # Map preset names to VoicePresets
+        presets = {
+            'normal': VoicePresets.normal,
+            'fast': VoicePresets.fast,
+            'slow': VoicePresets.slow,
+            'robot': VoicePresets.robot,
+            'deep': VoicePresets.deep,
+            'high': VoicePresets.high,
+            'whisper': VoicePresets.whisper,
+            'excited': VoicePresets.excited,
+            'calm': VoicePresets.calm,
+        }
+        fn = presets.get(preset)
+        return fn() if fn else EspeakTTS()
+    # Convert normalized params to espeak-ng ranges
+    es_speed = max(80, min(450, int(175 * speed)))
+    es_pitch = max(0, min(99, int(50 * pitch)))
+    es_volume = max(0, min(200, int(200 * volume)))
+    return EspeakTTS(speed=es_speed, pitch=es_pitch, volume=es_volume)
+
+def _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5, preset=None):
+    global ENGINE
+    if ENGINE == 'espeak':
+        tts = _espeak_from_params(pitch=pitch, speed=speed, volume=volume, preset=preset)
+        tts.speak(text)
+    elif ENGINE == 'piper':
+        if not PIPER_AVAILABLE:
+            print("Piper not available; falling back to espeak-ng.")
+            tts = _espeak_from_params(pitch=pitch, speed=speed, volume=volume, preset=preset)
+            tts.speak(text)
+            return
+        # Map speed to Piper length-scale (<1 faster)
+        length_scale = max(0.6, min(1.6, 1.0 / max(0.5, min(2.0, speed))))
+        # Basic presets mapping (very lightweight)
+        noise_scale, noise_w = 0.667, 0.8
+        if preset == 'robot':
+            noise_scale, noise_w = 0.3, 0.2
+        elif preset == 'deep':
+            noise_scale, noise_w = 0.6, 0.6
+        elif preset == 'excited':
+            noise_scale, noise_w = 0.9, 1.0
+        tmp = "/tmp/piper_demo.wav"
+        piper_synthesize(text, tmp, length_scale=length_scale, noise_scale=noise_scale, noise_w=noise_w)
+        piper_play(tmp)
+
+
 def demo_basic_tts():
     """Demo 1: Basic text-to-speech"""
     print("\n=== Demo 1: Basic Text-to-Speech ===\n")
-    tts = AdvancedTTS()
     
     texts = [
         "Hello, I am Arduino UNO Q.",
@@ -25,7 +83,7 @@ def demo_basic_tts():
     
     for text in texts:
         print(f"Speaking: {text}")
-        tts.speak(text)
+        _engine_speak(text)
         time.sleep(0.5)
 
 def demo_voice_customization():
@@ -36,32 +94,27 @@ def demo_voice_customization():
     
     # Normal voice
     print("Normal voice:")
-    tts = AdvancedTTS(pitch=1.0, speed=1.0, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=1.0, speed=1.0, volume=0.5)
     time.sleep(0.5)
     
     # Low pitch (deeper voice)
     print("Low pitch:")
-    tts = AdvancedTTS(pitch=0.7, speed=1.0, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=0.7, speed=1.0, volume=0.5, preset='deep')
     time.sleep(0.5)
     
     # High pitch
     print("High pitch:")
-    tts = AdvancedTTS(pitch=1.5, speed=1.0, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=1.5, speed=1.0, volume=0.5)
     time.sleep(0.5)
     
     # Fast speed
     print("Fast speed:")
-    tts = AdvancedTTS(pitch=1.0, speed=1.5, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=1.0, speed=1.5, volume=0.5)
     time.sleep(0.5)
     
     # Slow speed
     print("Slow speed:")
-    tts = AdvancedTTS(pitch=1.0, speed=0.7, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=1.0, speed=0.7, volume=0.5)
 
 def demo_long_text():
     """Demo 3: Long text synthesis"""
@@ -75,15 +128,13 @@ def demo_long_text():
     """
     
     print(f"Speaking long text:\n{text}")
-    tts = AdvancedTTS(speed=1.2, volume=0.6)
-    tts.speak(text)
+    _engine_speak(text, speed=1.2, volume=0.6)
 
 def demo_interactive():
     """Demo 4: Interactive mode"""
     print("\n=== Demo 4: Interactive Mode ===\n")
     print("Enter text to synthesize (or 'quit' to exit):\n")
     
-    tts = AdvancedTTS(volume=0.6)
     
     while True:
         text = input("> ")
@@ -92,7 +143,7 @@ def demo_interactive():
             break
         
         if text.strip():
-            tts.speak(text)
+            _engine_speak(text, volume=0.6)
 
 def demo_special_voices():
     """Demo 5: Special voice effects"""
@@ -100,22 +151,19 @@ def demo_special_voices():
     
     text = "This is a special voice effect"
     
-    # Robot voice (high pitch, slow speed)
+    # Robot voice (preset)
     print("Robot voice:")
-    tts = AdvancedTTS(pitch=1.3, speed=0.8, volume=0.4)
-    tts.speak(text)
+    _engine_speak(text, preset='robot')
     time.sleep(0.5)
     
-    # Deep voice (low pitch, slow)
+    # Deep voice (preset)
     print("Deep voice:")
-    tts = AdvancedTTS(pitch=0.6, speed=0.9, volume=0.6)
-    tts.speak(text)
+    _engine_speak(text, preset='deep')
     time.sleep(0.5)
     
-    # Chipmunk voice (very high pitch, fast)
+    # Chipmunk-like (high pitch, fast)
     print("Chipmunk voice:")
-    tts = AdvancedTTS(pitch=1.8, speed=1.4, volume=0.5)
-    tts.speak(text)
+    _engine_speak(text, pitch=1.8, speed=1.4, volume=0.5)
 
 def show_menu():
     """Display demo menu"""
@@ -123,6 +171,7 @@ def show_menu():
     print("=" * 60)
     print("   Arduino UNO Q - Offline Voice Generation Demo")
     print("=" * 60)
+    print(f"Engine: {ENGINE.upper()}  (toggle with option 7)")
     print("\nAvailable Demos:\n")
     print("  1. Basic Text-to-Speech")
     print("  2. Voice Customization")
@@ -130,11 +179,13 @@ def show_menu():
     print("  4. Interactive Mode")
     print("  5. Special Voice Effects")
     print("  6. Run All Demos")
+    print("  7. Switch Engine (espeak/piper)")
     print("  0. Exit")
     print("\n" + "=" * 60)
 
 def main():
     """Main demo program"""
+    global ENGINE
     demos = {
         '1': demo_basic_tts,
         '2': demo_voice_customization,
@@ -145,7 +196,7 @@ def main():
     
     while True:
         show_menu()
-        choice = input("\nSelect demo (0-6): ").strip()
+        choice = input("\nSelect demo (0-7): ").strip()
         
         if choice == '0':
             print("\nGoodbye!")
@@ -157,6 +208,15 @@ def main():
                 time.sleep(1)
             
             input("\nPress Enter to continue...")
+        elif choice == '7':
+            if ENGINE == 'espeak':
+                if not PIPER_AVAILABLE:
+                    print("Piper not available. Run piper_tts.py once to initialize.")
+                    time.sleep(1)
+                else:
+                    ENGINE = 'piper'
+            else:
+                ENGINE = 'espeak'
         elif choice in demos:
             demos[choice]()
             input("\nPress Enter to continue...")

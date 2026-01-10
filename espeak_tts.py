@@ -75,8 +75,14 @@ class EspeakTTS:
             elif output_file:
                 # Save and play
                 subprocess.run(cmd, check=True, stderr=subprocess.DEVNULL)
-                subprocess.run(['aplay', output_file], 
-                             check=True, stderr=subprocess.DEVNULL)
+                try:
+                    # Try paplay first (PulseAudio/PipeWire for Bluetooth)
+                    subprocess.run(['paplay', output_file], 
+                                 check=True, stderr=subprocess.DEVNULL)
+                except FileNotFoundError:
+                    # Fallback to aplay
+                    subprocess.run(['aplay', output_file], 
+                                 check=True, stderr=subprocess.DEVNULL)
                 return output_file
             else:
                 # Just play

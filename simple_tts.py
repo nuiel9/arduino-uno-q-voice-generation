@@ -12,7 +12,7 @@ import subprocess
 import os
 
 class SimpleTTS:
-    def __init__(self, sample_rate=22050):
+    def __init__(self, sample_rate=48000):
         self.sample_rate = sample_rate
         self.volume = 0.3
         
@@ -135,12 +135,17 @@ class SimpleTTS:
         
         if play:
             try:
-                subprocess.run(['aplay', output_file], check=True)
+                # Try paplay first (PulseAudio/PipeWire for Bluetooth)
+                subprocess.run(['paplay', output_file], check=True)
             except FileNotFoundError:
-                print(f"Audio file generated: {output_file}")
-                print("Install 'aplay' to play audio automatically")
-            except subprocess.CalledProcessError:
-                print(f"Error playing audio. File saved to: {output_file}")
+                # Fallback to aplay
+                try:
+                    subprocess.run(['aplay', output_file], check=True)
+                except FileNotFoundError:
+                    print(f"Audio file generated: {output_file}")
+                    print("Install audio player to play automatically")
+                except subprocess.CalledProcessError:
+                    print(f"Error playing audio. File saved to: {output_file}")
         
         return output_file
 

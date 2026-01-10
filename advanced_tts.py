@@ -11,7 +11,7 @@ import subprocess
 import argparse
 
 class AdvancedTTS:
-    def __init__(self, sample_rate=22050, pitch=1.0, speed=1.0, volume=0.5):
+    def __init__(self, sample_rate=48000, pitch=1.0, speed=1.0, volume=0.5):
         self.sample_rate = sample_rate
         self.pitch = pitch  # 0.5 to 2.0
         self.speed = speed  # 0.5 to 2.0
@@ -241,10 +241,16 @@ class AdvancedTTS:
         
         if play:
             try:
-                subprocess.run(['aplay', output_file], check=True, 
+                # Try paplay first (PulseAudio/PipeWire for Bluetooth)
+                subprocess.run(['paplay', output_file], check=True, 
                              stderr=subprocess.DEVNULL)
-            except (FileNotFoundError, subprocess.CalledProcessError):
-                print(f"Audio file saved to: {output_file}")
+            except FileNotFoundError:
+                # Fallback to aplay
+                try:
+                    subprocess.run(['aplay', output_file], check=True, 
+                                 stderr=subprocess.DEVNULL)
+                except (FileNotFoundError, subprocess.CalledProcessError):
+                    print(f"Audio file saved to: {output_file}")
         
         return output_file
 
