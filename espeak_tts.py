@@ -181,7 +181,7 @@ Examples:
     )
     
     parser.add_argument('text', nargs='*', help='Text to synthesize')
-    parser.add_argument('--voice', type=str, default='en',
+    parser.add_argument('-v', '--voice', type=str, default='en',
                        help='Voice code (default: en)')
     parser.add_argument('--speed', type=int, default=175,
                        help='Words per minute (80-450, default: 175)')

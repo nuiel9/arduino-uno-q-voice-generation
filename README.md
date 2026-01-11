@@ -1,16 +1,17 @@
-# Arduino UNO Q - Offline Voice Generation System
+# Arduino UNO Q - Voice Generation System
 
-A complete offline text-to-speech (TTS) system for Arduino UNO Q that runs entirely on-device without requiring internet connectivity. Features three quality levels: professional espeak-ng integration, enhanced pure Python TTS, and basic zero-dependency TTS.
+A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offline capabilities. Features multiple quality levels: professional espeak-ng integration (offline), Google TTS for multi-language support (online), enhanced pure Python TTS (offline), and basic zero-dependency TTS (offline). Includes Thai language support both online and offline.
 
 ## Features
 
-✨ **Fully Offline** - No internet connection required  
+✨ **Hybrid Online/Offline** - Works with or without internet  
+🌍 **Multi-Language** - Thai language support (online via gTTS, offline via espeak-ng)  
 🎵 **Voice Customization** - Control pitch, speed, volume, and voice presets  
 🔊 **Real-time Generation** - Synthesize speech on-the-fly  
 🤖 **Arduino Integration** - Serial communication with STM32 MCU  
-🎮 **Interactive Demos** - Multiple demonstration modes  
-📦 **Multiple Quality Levels** - Professional (espeak-ng), enhanced (pure Python), or basic (zero dependencies)  
-⚖️ **Engine Comparison** - Built-in comparison tool for all three engines
+🎮 **Interactive Demos** - Multiple demonstration modes including Thai  
+📦 **Multiple Quality Levels** - Professional (espeak-ng/gTTS), enhanced (pure Python), or basic (zero dependencies)  
+⚖️ **Engine Comparison** - Built-in comparison tool for all engines
 
 ## System Requirements
 
@@ -26,7 +27,9 @@ voice_ai_project/
 ├── simple_tts.py              # Basic TTS engine (pure Python)
 ├── advanced_tts.py            # Advanced TTS with customization (pure Python)
 ├── espeak_tts.py              # Professional TTS using espeak-ng ⭐ RECOMMENDED
-├── compare_tts.py             # Compare all three TTS engines
+├── gtts_multilang.py          # Multi-language TTS tool (100+ languages)
+├── thai_test.py               # Thai language test and demo script
+├── compare_tts.py             # Compare all TTS engines
 ├── serial_voice_bridge.py     # Arduino MCU communication bridge
 ├── arduino_voice_trigger.ino  # Arduino sketch for STM32
 ├── demo.py                    # Interactive demo application
@@ -54,6 +57,12 @@ python3 espeak_tts.py "Custom" --speed 200 --pitch 60 --volume 120
 # Pure Python TTS (no dependencies)
 python3 simple_tts.py "Hello from Arduino UNO Q"
 python3 advanced_tts.py "Test" --pitch 1.2 --speed 1.0 --volume 0.7
+
+# Thai language (offline)
+python3 espeak_tts.py "สวัสดีครับ" -v th
+
+# Thai language test script
+python3 thai_test.py
 ```
 
 ### 2. Compare TTS Engines
@@ -84,6 +93,7 @@ This provides:
 - Long text synthesis
 - Interactive text input mode
 - Special voice effects (robot, deep, chipmunk)
+- Thai language demos (offline and online)
 
 ### 4. Arduino Integration
 
@@ -154,6 +164,25 @@ tts.speak("This is custom voice")
 
 # Save without playing
 tts.speak("Save this", play=False, output_file="/tmp/output.wav")
+```
+
+### Thai Language Support
+
+```python
+# Offline Thai TTS with espeak-ng
+from espeak_tts import EspeakTTS
+
+tts = EspeakTTS(voice='th', speed=150, pitch=50)
+tts.speak("สวัสดีครับ")  # Hello (male)
+tts.speak("ขอบคุณค่ะ")  # Thank you (female)
+
+# Online Thai TTS with Google (requires internet)
+from gtts import gTTS
+import subprocess
+
+tts = gTTS(text="สวัสดีครับ", lang='th')
+tts.save("/tmp/thai.mp3")
+subprocess.run(['mpg123', '-q', '/tmp/thai.mp3'])
 ```
 
 ### Serial Bridge

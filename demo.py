@@ -195,7 +195,8 @@ def show_menu():
     print("  8. Select ESPEAK Voice (en/mb-us1/mb-us2/mb-us3)")
     print("  9. Set Global Speed (0.5–2.0, default 1.0)")
     print(" 10. Thai Quick Test (สวัสดี)")
-    print(" 11. gTTS Thai Demo (Google TTS)")
+    print(" 11. Thai Demo - Offline (espeak-ng)")
+    print(" 12. Thai Demo - Online (Google TTS)")
     print("  0. Exit")
     print("\n" + "=" * 60)
 
@@ -237,8 +238,9 @@ def select_speed():
 
 
 def demo_gtts_thai():
-    """Demo gTTS Thai language support"""
-    print("\n=== gTTS Thai Language Demo ===\n")
+    """Demo gTTS Thai language support (online)"""
+    print("\n=== gTTS Thai Language Demo (Online) ===\n")
+    print("Note: Requires internet connection\n")
     
     thai_text = "สวัสดีครับ นี่คือการทดสอบเสียงภาษาไทยด้วย Google Text to Speech"
     output_file = "/tmp/gtts_thai.mp3"
@@ -258,6 +260,26 @@ def demo_gtts_thai():
         print("Note: Make sure mpg123 is installed for playback (sudo apt install mpg123)")
 
 
+def demo_thai_offline():
+    """Demo offline Thai TTS with espeak-ng"""
+    print("\n=== Thai Language Demo (Offline) ===\n")
+    print("Engine: espeak-ng (no internet required)\n")
+    
+    # Test phrases
+    phrases = [
+        ("สวัสดีครับ", "Hello (male)"),
+        ("สวัสดีค่ะ", "Hello (female)"),
+        ("ขอบคุณครับ", "Thank you (male)"),
+        ("ยินดีต้อนรับ", "Welcome"),
+        ("ลาก่อน", "Goodbye"),
+    ]
+    
+    for thai_text, translation in phrases:
+        print(f"Speaking: {thai_text} ({translation})")
+        _engine_speak(thai_text, voice_override='th')
+        time.sleep(0.3)
+
+
 def main():
     """Main demo program"""
     global ENGINE, ESPEAK_VOICE, SPEECH_SPEED
@@ -271,7 +293,7 @@ def main():
     
     while True:
         show_menu()
-        choice = input("\nSelect demo (0-11): ").strip()
+        choice = input("\nSelect demo (0-12): ").strip()
         
         if choice == '0':
             print("\nGoodbye!")
@@ -308,6 +330,9 @@ def main():
                 print("Piper Thai voice not installed yet. I can set it up if you want.")
                 time.sleep(2)
         elif choice == '11':
+            demo_thai_offline()
+            input("\nPress Enter to continue...")
+        elif choice == '12':
             demo_gtts_thai()
             input("\nPress Enter to continue...")
         elif choice in demos:
