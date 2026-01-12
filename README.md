@@ -4,7 +4,7 @@ A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offl
 
 ## Features
 
-🧠 **Generative AI** - Real offline LLM (Qwen2-0.5B, SmolLM-360M) with voice responses 🆕  
+🧠 **Generative AI** - Real offline LLM (Qwen2-0.5B) with voice responses 🆕
 💬 **Conversational AI** - Pattern-based AI for fast responses  
 🎵 **Neural TTS** - Piper high-quality neural voice synthesis 🆕  
 👩 **Female Voice** - Multiple voice presets including female simulation 🆕  
@@ -60,7 +60,7 @@ python3 voice_ai_menu.py
 ```
 
 **Features:**
-- Select AI model (Pattern-based, Qwen2, SmolLM)
+- Select AI model (Pattern-based, Qwen2)
 - Choose TTS engine (espeak-ng, Piper Neural, Advanced, Simple)
 - Pick voice presets (normal, female, robot, deep, etc.)
 - Manage Ollama server

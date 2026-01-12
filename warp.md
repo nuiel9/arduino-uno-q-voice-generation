@@ -380,13 +380,6 @@ python3 voice_ai_assistant.py --qwen --preset robot
    - Faster speed (180 wpm)
    - Added to all TTS engines
 
-#### AI Models
-1. **SmolLM 360M** - Alternative lightweight LLM
-   - 229MB download size
-   - ~300MB RAM usage
-   - Faster responses than Qwen
-   - Good for fact-based questions
-
 #### Interactive Menu
 1. **voice_ai_menu.py** - Configuration menu system
    - Select AI model (Pattern/Qwen2/SmolLM)
@@ -407,10 +400,10 @@ python3 voice_ai_assistant.py --qwen --preset robot
 - ✅ Installed Piper TTS via pip (13.8MB + dependencies)
 - ✅ Downloaded Amy neural voice model (60MB)
 - ✅ Fixed Bluetooth audio routing (pw-play for PipeWire)
-- ✅ Installed SmolLM 360M model for comparison
 - ✅ Created interactive menu for easy configuration
 - ✅ Added female voice preset across all engines
 - ✅ Tested all combinations through Bluetooth speaker
+- ✅ Removed SmolLM to optimize storage (freed 229MB)
 
 ### Usage
 
@@ -433,10 +426,10 @@ python3 espeak_tts.py "Hello, I am a female assistant" --preset female
 
 **Voice Presets Available:** normal, female, fast, slow, robot, deep, high, whisper, excited, calm
 
-**AI Models Available:** Pattern-based, Qwen2 0.5B, SmolLM 360M, SmolLM 1.7B
+**AI Models Available:** Pattern-based, Qwen2 0.5B
 
 **TTS Engines Available:** espeak-ng, Piper Neural, Advanced Python, Simple Python
 
 **Project Status:** ✅ **COMPLETE WITH ADVANCED FEATURES**
 
-*Updated: January 12, 2026, 13:36 - Added Piper neural TTS, SmolLM models, interactive menu, female voice* 🆕
+*Updated: January 12, 2026, 14:48 - Added Piper neural TTS, interactive menu, female voice, optimized storage* 🆕

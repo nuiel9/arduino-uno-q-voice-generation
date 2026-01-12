@@ -423,15 +423,18 @@ The system is production-ready and can be used immediately.
 - ✅ Debugged Bluetooth audio routing (PipeWire)
 - ✅ Updated piper_neural_tts.py with pw-play support
 - ✅ Integrated Piper with voice_ai_assistant.py (--piper flag)
-- ✅ Installed SmolLM 360M model (229MB, alternative to Qwen)
-- ✅ Compared Qwen2 vs SmolLM performance
 - ✅ Created voice_ai_menu.py (interactive configuration menu)
 - ✅ Added female voice preset (higher pitch simulation)
 - ✅ Updated espeak_tts.py with female preset
 - ✅ Tested all voice presets through Bluetooth speaker
 
+### Phase 13: Model Cleanup (January 12, 2026, 14:48)
+- ✅ Removed SmolLM 360M model (freed 229MB disk space)
+- ✅ Kept Qwen2 0.5B as primary LLM (352MB)
+- ✅ Simplified AI model selection
+
 ---
 
-*Last Updated: January 12, 2026, 13:36*  
-*Project Status: COMPLETE + ADVANCED AI & MENU* ✅  
-*Latest Enhancement: Piper neural TTS, SmolLM models, interactive menu, female voice*
+*Last Updated: January 12, 2026, 14:48*  
+*Project Status: COMPLETE + OPTIMIZED* ✅  
+*Latest Enhancement: Piper neural TTS, interactive menu, female voice, optimized storage*
