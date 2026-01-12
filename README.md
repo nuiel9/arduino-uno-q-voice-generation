@@ -1,15 +1,17 @@
 # Arduino UNO Q - Voice Generation System
 
-A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offline capabilities. Features multiple quality levels: professional espeak-ng integration (offline), Google TTS for multi-language support (online), enhanced pure Python TTS (offline), and basic zero-dependency TTS (offline). Includes Thai language support both online and offline.
+A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offline capabilities and **real generative AI** using Qwen2 LLM. Features multiple quality levels: professional espeak-ng integration (offline), Google TTS for multi-language support (online), enhanced pure Python TTS (offline), and basic zero-dependency TTS (offline). Includes Thai language support and offline conversational AI with voice responses.
 
 ## Features
 
+🧠 **Generative AI** - Real offline LLM (Qwen2-0.5B) with voice responses 🆕  
+💬 **Conversational AI** - Pattern-based AI for fast responses  
 ✨ **Hybrid Online/Offline** - Works with or without internet  
 🌍 **Multi-Language** - Thai language support (online via gTTS, offline via espeak-ng)  
 🎵 **Voice Customization** - Control pitch, speed, volume, and voice presets  
 🔊 **Real-time Generation** - Synthesize speech on-the-fly  
 🤖 **Arduino Integration** - Serial communication with STM32 MCU  
-🎮 **Interactive Demos** - Multiple demonstration modes including Thai  
+🎮 **Interactive Demos** - Multiple demonstration modes including Thai and AI chat  
 📦 **Multiple Quality Levels** - Professional (espeak-ng/gTTS), enhanced (pure Python), or basic (zero dependencies)  
 ⚖️ **Engine Comparison** - Built-in comparison tool for all engines
 
@@ -19,6 +21,7 @@ A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offl
 - Python 3.13+ (included with UNO Q)
 - Audio output device (USB or built-in)
 - ~350MB free storage space (for espeak-ng) or ~50KB (pure Python only)
+- Optional: ~400MB for Qwen2 LLM (Ollama + model)
 
 ## Project Structure
 
@@ -33,13 +36,50 @@ voice_ai_project/
 ├── serial_voice_bridge.py     # Arduino MCU communication bridge
 ├── arduino_voice_trigger.ino  # Arduino sketch for STM32
 ├── demo.py                    # Interactive demo application
+├── offline_ai_brain.py        # Pattern-based conversational AI 🆕
+├── qwen_ai_brain.py           # Qwen2 LLM wrapper 🆕
+├── voice_ai_assistant.py      # Voice-enabled AI assistant 🆕
+├── demo_voice_ai.py           # AI voice demo 🆕
 ├── README.md                  # This file
-└── QUICK_START.md             # Quick reference guide
+├── QUICK_START.md             # Quick reference guide
+├── VOICE_AI_README.md         # Voice AI documentation 🆕
+└── QWEN_README.md             # Qwen LLM guide 🆕
 ```
 
 ## Quick Start
 
-### 1. Basic Usage
+### 1. Voice AI Assistant (NEW! 🆕)
+
+Use the AI assistant with voice responses:
+
+```bash
+# Pattern-based AI (fast, <0.1s responses)
+python3 voice_ai_assistant.py
+
+# Qwen2 LLM (real generative AI, 2-10s responses)
+python3 voice_ai_assistant.py --qwen
+
+# With different voices
+python3 voice_ai_assistant.py --qwen --preset robot
+python3 voice_ai_assistant.py --preset excited
+
+# Batch mode
+python3 voice_ai_assistant.py --batch "Hello" "What time is it?"
+python3 voice_ai_assistant.py --qwen --batch "What is Arduino?" "Tell me a joke"
+
+# Text-only (no voice)
+python3 voice_ai_assistant.py --no-voice
+```
+
+**Interactive commands:**
+- `mute` / `unmute` - Control voice output
+- `stats` - Show conversation statistics
+- `save` - Save conversation history
+- `quit` - Exit
+
+See [VOICE_AI_README.md](VOICE_AI_README.md) and [QWEN_README.md](QWEN_README.md) for complete documentation.
+
+### 2. Basic TTS Usage
 
 Generate speech from command line:
 
