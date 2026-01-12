@@ -4,15 +4,18 @@ A complete text-to-speech (TTS) system for Arduino UNO Q with hybrid online/offl
 
 ## Features
 
-🧠 **Generative AI** - Real offline LLM (Qwen2-0.5B) with voice responses 🆕  
+🧠 **Generative AI** - Real offline LLM (Qwen2-0.5B, SmolLM-360M) with voice responses 🆕  
 💬 **Conversational AI** - Pattern-based AI for fast responses  
+🎵 **Neural TTS** - Piper high-quality neural voice synthesis 🆕  
+👩 **Female Voice** - Multiple voice presets including female simulation 🆕  
+🎮 **Interactive Menu** - Easy-to-use configuration menu 🆕  
 ✨ **Hybrid Online/Offline** - Works with or without internet  
 🌍 **Multi-Language** - Thai language support (online via gTTS, offline via espeak-ng)  
 🎵 **Voice Customization** - Control pitch, speed, volume, and voice presets  
 🔊 **Real-time Generation** - Synthesize speech on-the-fly  
 🤖 **Arduino Integration** - Serial communication with STM32 MCU  
 🎮 **Interactive Demos** - Multiple demonstration modes including Thai and AI chat  
-📦 **Multiple Quality Levels** - Professional (espeak-ng/gTTS), enhanced (pure Python), or basic (zero dependencies)  
+📦 **Multiple Quality Levels** - Neural (Piper), Professional (espeak-ng/gTTS), enhanced (pure Python), or basic (zero dependencies)  
 ⚖️ **Engine Comparison** - Built-in comparison tool for all engines
 
 ## System Requirements
@@ -48,6 +51,21 @@ voice_ai_project/
 
 ## Quick Start
 
+### 0. Interactive Menu (EASIEST! 🆕)
+
+Use the interactive menu for easy configuration:
+
+```bash
+python3 voice_ai_menu.py
+```
+
+**Features:**
+- Select AI model (Pattern-based, Qwen2, SmolLM)
+- Choose TTS engine (espeak-ng, Piper Neural, Advanced, Simple)
+- Pick voice presets (normal, female, robot, deep, etc.)
+- Manage Ollama server
+- Launch with your configuration
+
 ### 1. Voice AI Assistant (NEW! 🆕)
 
 Use the AI assistant with voice responses:
@@ -61,7 +79,12 @@ python3 voice_ai_assistant.py --qwen
 
 # With different voices
 python3 voice_ai_assistant.py --qwen --preset robot
+python3 voice_ai_assistant.py --preset female
 python3 voice_ai_assistant.py --preset excited
+
+# With Piper neural TTS (high quality)
+python3 voice_ai_assistant.py --qwen --piper
+python3 voice_ai_assistant.py --piper --preset female
 
 # Batch mode
 python3 voice_ai_assistant.py --batch "Hello" "What time is it?"

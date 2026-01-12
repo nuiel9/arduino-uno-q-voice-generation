@@ -161,6 +161,10 @@ class VoicePresets:
     @staticmethod
     def calm():
         return EspeakTTS(speed=150, pitch=45, volume=85)
+    
+    @staticmethod
+    def female():
+        return EspeakTTS(speed=180, pitch=75, volume=100)
 
 
 def main():
@@ -169,7 +173,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Voice Presets:
-  normal, fast, slow, robot, deep, high, whisper, excited, calm
+  normal, female, fast, slow, robot, deep, high, whisper, excited, calm
 
 Examples:
   espeak_tts.py "Hello world"
@@ -190,7 +194,7 @@ Examples:
     parser.add_argument('--volume', type=int, default=100,
                        help='Volume (0-200, default: 100)')
     parser.add_argument('--preset', type=str, choices=[
-                       'normal', 'fast', 'slow', 'robot', 'deep', 
+                       'normal', 'female', 'fast', 'slow', 'robot', 'deep', 
                        'high', 'whisper', 'excited', 'calm', 'thai'],
                        help='Use a voice preset')
     parser.add_argument('--output', type=str,

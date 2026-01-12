@@ -19,6 +19,7 @@ class QwenAI:
         
         Args:
             model: Ollama model name (default: qwen2:0.5b)
+                   Supported: qwen2:0.5b, smollm:360m, smollm:135m, smollm:1.7b
             temperature: Response randomness 0.0-1.0 (default: 0.7)
             max_tokens: Maximum response length (default: 150)
         """

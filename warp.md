@@ -361,3 +361,82 @@ python3 voice_ai_assistant.py --qwen --preset robot
 **Project Status:** ✅ **COMPLETE WITH GENERATIVE AI**
 
 *Updated: January 12, 2026 - Added Qwen2 LLM integration with voice responses* 🆕
+
+## Phase 12: Enhanced Voice & Interactive Menu 🆕
+
+**Date:** January 12, 2026
+
+### New Capabilities Added
+
+#### TTS Engines
+1. **Piper Neural TTS** - High-quality neural voice synthesis
+   - Amy voice model (60MB, female voice)
+   - Natural-sounding speech
+   - PipeWire/Bluetooth audio support
+   - Integrated with voice assistant (--piper flag)
+
+2. **Female Voice Preset** - espeak-ng female simulation
+   - Higher pitch (75)
+   - Faster speed (180 wpm)
+   - Added to all TTS engines
+
+#### AI Models
+1. **SmolLM 360M** - Alternative lightweight LLM
+   - 229MB download size
+   - ~300MB RAM usage
+   - Faster responses than Qwen
+   - Good for fact-based questions
+
+#### Interactive Menu
+1. **voice_ai_menu.py** - Configuration menu system
+   - Select AI model (Pattern/Qwen2/SmolLM)
+   - Choose TTS engine (espeak/Piper/Advanced/Simple)
+   - Pick voice presets (normal/female/robot/deep/etc.)
+   - Manage Ollama server
+   - Check installed models
+   - Launch with selected configuration
+
+### New Files Created
+- `piper_neural_tts.py` (6.1KB) - Piper TTS wrapper
+- `voice_ai_menu.py` (9.5KB) - Interactive configuration menu
+- Updated `espeak_tts.py` - Added female preset
+- Updated `voice_ai_assistant.py` - Added --piper flag
+
+### Technical Achievements
+
+- ✅ Installed Piper TTS via pip (13.8MB + dependencies)
+- ✅ Downloaded Amy neural voice model (60MB)
+- ✅ Fixed Bluetooth audio routing (pw-play for PipeWire)
+- ✅ Installed SmolLM 360M model for comparison
+- ✅ Created interactive menu for easy configuration
+- ✅ Added female voice preset across all engines
+- ✅ Tested all combinations through Bluetooth speaker
+
+### Usage
+
+```bash
+# Interactive menu (easiest)
+python3 voice_ai_menu.py
+
+# Piper neural TTS with Qwen AI
+python3 voice_ai_assistant.py --qwen --piper
+
+# Female voice with espeak
+python3 voice_ai_assistant.py --preset female
+
+# Female voice with Piper (Amy is female by default)
+python3 voice_ai_assistant.py --piper
+
+# Test female voice
+python3 espeak_tts.py "Hello, I am a female assistant" --preset female
+```
+
+**Voice Presets Available:** normal, female, fast, slow, robot, deep, high, whisper, excited, calm
+
+**AI Models Available:** Pattern-based, Qwen2 0.5B, SmolLM 360M, SmolLM 1.7B
+
+**TTS Engines Available:** espeak-ng, Piper Neural, Advanced Python, Simple Python
+
+**Project Status:** ✅ **COMPLETE WITH ADVANCED FEATURES**
+
+*Updated: January 12, 2026, 13:36 - Added Piper neural TTS, SmolLM models, interactive menu, female voice* 🆕

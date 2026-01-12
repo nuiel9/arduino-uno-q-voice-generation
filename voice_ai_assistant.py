@@ -18,15 +18,20 @@ except Exception as e:
     QWEN_AVAILABLE = False
     print(f"Qwen not available: {e}")
 
-# Import the TTS engine
+# Import the TTS engines
 from espeak_tts import EspeakTTS, VoicePresets
+try:
+    from piper_neural_tts import speak as piper_speak
+    PIPER_AVAILABLE = True
+except:
+    PIPER_AVAILABLE = False
 
 
 class VoiceAI:
     """Voice-enabled AI assistant"""
     
     def __init__(self, voice_preset='normal', speed=175, pitch=50, volume=100, 
-                 voice_enabled=True, save_audio=False, use_qwen=False):
+                 voice_enabled=True, save_audio=False, use_qwen=False, use_piper=False):
         """Initialize voice AI assistant
         
         Args:
@@ -54,21 +59,28 @@ class VoiceAI:
         # Initialize TTS engine
         self.voice_enabled = voice_enabled
         self.save_audio = save_audio
+        self.use_piper = use_piper and PIPER_AVAILABLE
+        self.tts_speed = speed
         
         if voice_enabled:
-            # Use preset or custom settings
-            if voice_preset != 'normal' or (speed == 175 and pitch == 50 and volume == 100):
-                # Try to use preset
-                preset_method = getattr(VoicePresets, voice_preset, None)
-                if preset_method:
-                    self.tts = preset_method()
-                    print(f"✓ Voice engine loaded (preset: {voice_preset})")
+            if self.use_piper:
+                # Use Piper neural TTS
+                self.tts = None  # Piper uses function, not class
+                print("✓ Piper Neural TTS loaded (high quality)")
+            else:
+                # Use espeak-ng
+                if voice_preset != 'normal' or (speed == 175 and pitch == 50 and volume == 100):
+                    # Try to use preset
+                    preset_method = getattr(VoicePresets, voice_preset, None)
+                    if preset_method:
+                        self.tts = preset_method()
+                        print(f"✓ Voice engine loaded (preset: {voice_preset})")
+                    else:
+                        self.tts = EspeakTTS(speed=speed, pitch=pitch, volume=volume)
+                        print(f"✓ Voice engine loaded (custom settings)")
                 else:
                     self.tts = EspeakTTS(speed=speed, pitch=pitch, volume=volume)
-                    print(f"✓ Voice engine loaded (custom settings)")
-            else:
-                self.tts = EspeakTTS(speed=speed, pitch=pitch, volume=volume)
-                print(f"✓ Voice engine loaded")
+                    print(f"✓ Voice engine loaded")
         else:
             self.tts = None
             print("✓ Text-only mode")
@@ -82,12 +94,22 @@ class VoiceAI:
             return
         
         try:
-            if self.save_audio:
-                filename = f"/tmp/voice_ai_{self.audio_counter:03d}.wav"
-                self.tts.speak(text, output_file=filename)
-                self.audio_counter += 1
+            if self.use_piper:
+                # Use Piper neural TTS
+                output_file = f"/tmp/voice_ai_{self.audio_counter:03d}.wav" if self.save_audio else None
+                piper_speak(text, speed=self.tts_speed/175.0, 
+                          output_file=output_file, 
+                          play=not self.save_audio)
+                if self.save_audio:
+                    self.audio_counter += 1
             else:
-                self.tts.speak(text)
+                # Use espeak-ng
+                if self.save_audio:
+                    filename = f"/tmp/voice_ai_{self.audio_counter:03d}.wav"
+                    self.tts.speak(text, output_file=filename)
+                    self.audio_counter += 1
+                else:
+                    self.tts.speak(text)
         except Exception as e:
             print(f"Voice output error: {e}")
     
@@ -234,7 +256,7 @@ Examples:
     )
     
     parser.add_argument('--preset', '-p', 
-                       choices=['normal', 'fast', 'slow', 'robot', 'deep', 
+                       choices=['normal', 'female', 'fast', 'slow', 'robot', 'deep', 
                                'high', 'whisper', 'excited', 'calm'],
                        default='normal',
                        help='Voice preset')
@@ -260,6 +282,9 @@ Examples:
     parser.add_argument('--qwen', action='store_true',
                        help='Use Qwen LLM instead of pattern-based AI')
     
+    parser.add_argument('--piper', action='store_true',
+                       help='Use Piper neural TTS instead of espeak-ng')
+    
     args = parser.parse_args()
     
     # Create voice AI assistant
@@ -271,7 +296,8 @@ Examples:
             volume=args.volume,
             voice_enabled=not args.no_voice,
             save_audio=args.save_audio,
-            use_qwen=args.qwen
+            use_qwen=args.qwen,
+            use_piper=args.piper
         )
         
         # Run in appropriate mode
